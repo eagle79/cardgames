@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Cards;
+using CardsLib.Cards;
 using NUnit.Framework;
 
 namespace CardsTests
@@ -93,13 +93,13 @@ namespace CardsTests
 
             stack = CardStack.GetEmptyStack(CardStackOrientation.FaceDown);
             Assert.Zero(stack.Count);
-            Assert.Zero(stack.Contents.Length);
+            Assert.Zero(stack.Contents.Count);
             Assert.AreEqual(CardStackOrientation.FaceDown, stack.Orientation);
 
             stack = CardStack.GetSortedStandardDeck(
                     CardStackOrientation.FaceDown);
             Assert.AreEqual(52, stack.Count);
-            Assert.AreEqual(52, stack.Contents.Length);
+            Assert.AreEqual(52, stack.Contents.Count);
             Assert.AreEqual(CardStackOrientation.FaceDown, stack.Orientation);
             foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
             {
@@ -114,7 +114,7 @@ namespace CardsTests
             stack = CardStack.GetShuffledStandardDeck(
                     CardStackOrientation.FaceDown);
             Assert.AreEqual(52, stack.Count);
-            Assert.AreEqual(52, stack.Contents.Length);
+            Assert.AreEqual(52, stack.Contents.Count);
             Assert.AreEqual(CardStackOrientation.FaceDown, stack.Orientation);
             foreach(CardSuit suit in Enum.GetValues(typeof(CardSuit)))
             {
@@ -147,7 +147,7 @@ namespace CardsTests
         {
             CardStack stack;
             int cardCount;
-            Card[] unshuffled;
+            List<Card> unshuffled;
 
             //empty stack
             stack = CardStack.GetEmptyStack(CardStackOrientation.FaceDown);
@@ -182,7 +182,7 @@ namespace CardsTests
             // does NOT prove we have a good shuffle, but it does prove we 
             // did shuffle in some way.
             bool foundChange = false;
-            for (int i=0; i<unshuffled.Length; i++)
+            for (int i=0; i<unshuffled.Count; i++)
             {
                 if (!unshuffled[i].Equals(stack.Draw(1)[0]))
                 {
@@ -198,12 +198,12 @@ namespace CardsTests
         {
             CardStack stack = CardStack.GetShuffledStandardDeck(
                     CardStackOrientation.FaceDown);
-            Card[] before = stack.Contents;
+            List<Card> before = stack.Contents;
             stack.Flip();
             Assert.AreEqual(CardStackOrientation.FaceUp, stack.Orientation);
-            Card[] after = stack.Contents;
+            List<Card> after = stack.Contents;
 
-            Array.Reverse(before);
+            before.Reverse();
             int i = 0;
             foreach (Card card in after)
             {
@@ -232,9 +232,8 @@ namespace CardsTests
             //drew the expected card (Ace of Hearts)
             Assert.True(card.Equals(new Card(CardSuit.Hearts, CardRank.Ace)));
             //drawn card is no longer in stack
-            Assert.False(Array.Exists<Card>(stack.Contents, (Card c) 
-                    => (c.Suit == CardSuit.Hearts) && 
-                        (c.Rank == CardRank.Ace)));
+            CollectionAssert.DoesNotContain(stack.Contents, 
+                    new Card(CardSuit.Hearts, CardRank.Ace));
 
             //draw a card (face up) and verify 
             stack.Flip();
@@ -246,9 +245,8 @@ namespace CardsTests
             //drew the expected card (King of Clubs)
             Assert.True(card.Equals(new Card(CardSuit.Clubs, CardRank.King)));
             //drawn card is no longer in the stack
-            Assert.False(Array.Exists<Card>(stack.Contents, (Card c)
-                    => (c.Suit == CardSuit.Clubs) &&
-                        (c.Rank == CardRank.King)));
+            CollectionAssert.DoesNotContain(stack.Contents, 
+                    new Card(CardSuit.Clubs, CardRank.King));
 
             //draw 5 cards (face down) and verify
             stack.Flip();
@@ -269,8 +267,7 @@ namespace CardsTests
             //drawn cards are no longer in the stack
             foreach(Card c in drawn)
             {
-                Assert.False(Array.Exists<Card>(
-                        stack.Contents, (Card sc) => sc.Equals(c)));
+                CollectionAssert.DoesNotContain(stack.Contents, c);
             }
 
             //draw 5 cards (face up) and verify
@@ -293,8 +290,7 @@ namespace CardsTests
             //drawn cards are no longer in the stack
             foreach (Card c in drawn)
             {
-                Assert.False(Array.Exists<Card>(
-                        stack.Contents, (Card sc) => sc.Equals(c)));
+                CollectionAssert.DoesNotContain(stack.Contents, c);
             }
 
             //try to draw more than the remaining cards (face down)

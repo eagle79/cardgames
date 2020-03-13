@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Cards;
+using CardsLib.Cards;
 
 namespace GinRummy
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Cards
+namespace CardsLib.Cards
 {
     /// <summary>
     /// Representation of a card suit.
@@ -44,79 +44,6 @@ namespace Cards
     {
         FaceUp,
         FaceDown
-    }
-
-    /// <summary>
-    /// Extension methods for Card Deck types.
-    /// </summary>
-    public static class Extensions
-    {
-        /// <summary>
-        /// Generates the appropriate printable symbol for a card suit.
-        /// </summary>
-        /// <returns>The symbol for the suit.</returns>
-        /// <param name="suit">The suit to generate the symbol for.</param>
-        public static string Symbol(this CardSuit suit)
-        {
-            switch (suit)
-            {
-                case CardSuit.Spades:
-                    return "\u2664";
-                case CardSuit.Clubs:
-                    return "\u2667";
-                case CardSuit.Diamonds:
-                    return "\u2666";
-                case CardSuit.Hearts:
-                    return "\u2665";
-                default:
-                    return "!"; //this is an error and should not be possible
-            }
-        }
-
-        /// <summary>
-        /// Generates the appropriate printable symbol for a card rank.
-        /// </summary>
-        /// <returns>The symbol for the rank.</returns>
-        /// <param name="rank">The rank to generate the symbol for.</param>
-        public static string Symbol(this CardRank rank)
-        {
-            switch (rank)
-            {
-                case CardRank.Ace:
-                    return "A";
-                case CardRank.Jack:
-                    return "J";
-                case CardRank.Queen:
-                    return "Q";
-                case CardRank.King:
-                    return "K";
-                case CardRank.Ten:
-                    return "T";
-                default:
-                    return $"{(int)rank}";
-            }
-        }
-
-        /// <summary>
-        /// Extends generic List type to include a Shuffle function that
-        /// randomly sorts the contents of the list.
-        /// </summary>
-        /// <param name="list">The list to shuffle.</param>
-        /// <typeparam name="T">The type of the list being shuffled.</typeparam>
-        public static void Shuffle<T>(this IList<T> list)
-        {
-            Random rng = new Random();
-
-            int n = list.Count;
-            while (n > 1)
-            {
-                n--;
-                int k = rng.Next(n + 1);
-                T value = list[k];
-                list[k] = list[n];
-                list[n] = value;
-            }
-        }
     }
 
     /// <summary>
@@ -269,16 +196,16 @@ namespace Cards
         /// according to the stack orientation.
         /// </summary>
         /// <value>The contents of the card stack.</value>
-        public Card[] Contents
+        public List<Card> Contents
         {
             get
-            {
+            {   
                 Card[] cards = _cards.ToArray();
                 if (Orientation == CardStackOrientation.FaceUp)
                 {
                     Array.Reverse(cards);
                 }
-                return cards;
+                return new List<Card>(cards);
             }
         }
 
@@ -308,13 +235,22 @@ namespace Cards
         /// </summary>
         public void Shuffle()
         {
-            //we'll shuffle up to 5 times
-            Random r = new Random();
-            int shuffleCount = r.Next() % 5 + 1;
+            Random rng = new Random();
+
+            int shuffleCount = rng.Next() % 5 + 1;
 
             for (int i = 0; i < shuffleCount; i++)
             {
-                _cards.Shuffle();
+                //perform a Fisher-Yates shuffle
+                int n = _cards.Count;
+                while (n > 1)
+                {
+                    n--;
+                    int k = rng.Next(n + 1);
+                    Card value = _cards[k];
+                    _cards[k] = _cards[n];
+                    _cards[n] = value;
+                }
             }
         }
 
@@ -515,6 +451,58 @@ namespace Cards
             stack.Flip();
 
             return stack;
+        }
+    }
+
+    /// <summary>
+    /// Extension methods for card-related types.
+    /// </summary>
+    public static class Extensions
+    {
+        /// <summary>
+        /// Generates the appropriate printable symbol for a card suit.
+        /// </summary>
+        /// <returns>The symbol for the suit.</returns>
+        /// <param name="suit">The suit to generate the symbol for.</param>
+        public static string Symbol(this CardSuit suit)
+        {
+            switch (suit)
+            {
+                case CardSuit.Spades:
+                    return "\u2664";
+                case CardSuit.Clubs:
+                    return "\u2667";
+                case CardSuit.Diamonds:
+                    return "\u2666";
+                case CardSuit.Hearts:
+                    return "\u2665";
+                default:
+                    return "!"; //this is an error and should not be possible
+            }
+        }
+
+        /// <summary>
+        /// Generates the appropriate printable symbol for a card rank.
+        /// </summary>
+        /// <returns>The symbol for the rank.</returns>
+        /// <param name="rank">The rank to generate the symbol for.</param>
+        public static string Symbol(this CardRank rank)
+        {
+            switch (rank)
+            {
+                case CardRank.Ace:
+                    return "A";
+                case CardRank.Jack:
+                    return "J";
+                case CardRank.Queen:
+                    return "Q";
+                case CardRank.King:
+                    return "K";
+                case CardRank.Ten:
+                    return "T";
+                default:
+                    return $"{(int)rank}";
+            }
         }
     }
 }
